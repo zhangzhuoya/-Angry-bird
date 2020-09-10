@@ -4,14 +4,15 @@
     background-image: url("../images/sky.png");
     position: relative;
 }
-.brid{
+.bird{
     position: absolute;
     width:30px;
     height: 30px;
-    top: 255px;
+    top: 230px;
     left: 50%;
     margin-left: -15px;
-    background-image: url("../images/bird.png");
+    background-image: url("../images/birds.png");
+    transition: top .3s linear;
 }
 .start-game{
     top: 305px;
@@ -20,20 +21,22 @@
     height: 60px;
     text-align: center;
     left: 50%;
-    font-size: 24px;
+    /* font-size: 24px; */
     margin-left: -100px;  
     font-weight: bolder; 
     cursor: pointer;
+    transition: all .3s linear;
 }
 .start-game.white{
+    font-size: 24px;
     color: white;
 
 }
 .start-game.blue{
-    color: bule;
-
-}
-.score{
+    color: blue;
+    font-size: 36px;
+ }
+.score-times{
     position: absolute;
     left: 50%;
     transform:translateX(-50%);
@@ -49,27 +52,80 @@
     right: 0;
     left: 0;
      background-color: #000;
-     opacity: .6;
+     opacity: .7;
+     display: none;
 } 
-.mask .end .game-over{
-    position: absolute;
-    top: 60px;
+.end{
+     position: absolute;
+     top: 70px;
+     left: 50%;
+     transform: translateX(-50%);
+     text-align: center;
+}
+.end .game-over{   
     color: red;
     font-size: 40px;
-    left: 50%;
-    transform: translateX(-50%);
     font-weight: bolder;
 }
 
-.mask .end .socre-name{
-    position: absolute;
-    top: 100px;
-    color: red;
-    font-size: 40px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-weight: bolder;
-
+.end .score-name,
+.end .score
+{
+    
+    margin-top: 20px;
+    color: #ff0;
+    font-size: 20px;
+    font-weight: bold;
 
 }
+ .rank-score{
+    width: 210px;
+   margin-top: 20px;  
+ }
+.rank-score .rank-item{
+    text-align: center;
+    height: 15px;
+    width: 200px;
+    color:#09f;
+    margin-bottom: 20px;
+    font-size: 13px;
 
+}
+.rank-score .rank-item .rank-level{
+    display:inline-block;
+width: 15px;
+height: 15px;
+font-size: 12px;
+/* padding: 1px; */
+text-align: center;
+line-height: 15px;
+background: red;
+color: aliceblue;    
+margin-bottom: 5px;
+}
+.rank-score .rank-item .rank-level.first{
+    background: red;
+}
+.rank-score .rank-item .rank-level.second{
+    background-color: #ff8547;
+}
+.rank-score .rank-item .rank-level.third{
+    background-color: #ffac38;
+
+}
+/*  */
+.rank-score .rank-item .rank-item-score{
+    margin-left: 10px;
+}
+.rank-score .rank-item .rank-time{
+    margin-left: 20px;
+}
+.end .restart{
+    margin-top: 20px;
+    color: #09f;
+    font-size: 20px;
+    font-weight: bolder;
+    /* position: absolute; */
+   
+    /* margin-top: ; */
+}
