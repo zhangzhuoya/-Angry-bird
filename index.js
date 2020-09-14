@@ -13,12 +13,13 @@ var bird = {
   maxTop: 570,
   startLeft: "80",
   startColor: "white",
+  pipeLength: 7,
   init: function () {
     this.initData();
     this.animate();
     this.skyMove();
     this.startGame();
-
+    this.createPipe(300)
     // this.handleClick();
   },
   initData: function () {
@@ -34,6 +35,7 @@ var bird = {
     const self = this;
     let conts = 0;
     this.timer = setInterval(function () {
+    
       conts++;
       if (self.startFlag) {
         self.birdDrop();
@@ -62,7 +64,7 @@ var bird = {
   birdJump: function () {
     this.birdTop = this.birdTop === 230 ? 280 : 230;
     this.obird.style.top = this.birdTop + "px";
-    // console.log(this.obird.style.top);
+    // //.log(this.obird.style.top);
   },
   /**
    *
@@ -87,7 +89,7 @@ var bird = {
    */
   startBound: function () {
     let prevColor = this.startColor;
-    console.log(prevColor);
+    //.log(prevColor);
     this.startColor = prevColor === "white" ? "blue" : "white";
     this.osgame.classList.remove(prevColor);
     this.osgame.classList.add(this.startColor);
@@ -97,9 +99,9 @@ var bird = {
    */
   judgeBoundary: function () {
     if (this.birdTop < this.minTop || this.birdTop > this.maxTop) {
-    // this.ogame.style.top = this.maxTop;
+      // this.ogame.style.top = this.maxTop;
 
-      console.log(this.birdTop);
+      //.log(this.birdTop);
       this.failGame();
     }
   },
@@ -113,9 +115,28 @@ var bird = {
   //    self.birdStepY += -10;
   //   };
   // },
+  /**
+   * 创建柱子
+   */
+  createPipe: function (x) {
+    //var upHeihgt = 50 + Math.floor(Math.random() * 175);
+    //var downHeight = 600 - 150 - upHeihgt;
+   // var oupPige = createEle("div", ["pipe", "pipe-up"], {
+   //   height: upHeihgt +"px",
+    //  left: x + "px"
+   // })
+    var odownPige = createEle("div"
+    //, ["pipe", "pipe-down"], {
+     // height: downHeight + "px",
+    //  left: x + "px"
+   //}
+   )
+    //this.ogame.appendChild(oupPige);
+    this.ogame.appendChild(odownPige);
+  },
 
   startGame: function () {
-    const self = t  his;
+    const self = this;
     self.ogame.onclick = function (e) {
       // console.log(this);
       self.startFlag = true;
@@ -125,11 +146,14 @@ var bird = {
       self.obird.style.left = self.startLeft + "px";
       // self.birdStepY = 50;
       if (!e.target.classList.contains("start-game")) {
-        console.log(e.target.classList);
+        //  console.log(e.target.classList);
         self.birdStepY = -10;
       }
-      console.log(self.birdStepY);
-      // console.log(self.obird.style.left);
+      //console.log(self.birdStepY);
+      // //.log(self.obird.style.left);
+     // for (let i = 0; i < self.pipeLength; i++) {
+   //     self.createPipe(300 * (i + 1));
+ //     }
     };
   },
 
@@ -137,9 +161,9 @@ var bird = {
     // this.ogame.style.top = this.maxTop;
     clearInterval(this.timer);
     // this.ogame.style.top = this.maxTop;
-    console.log(this.maxTop);
+    ////.log(this.maxTop);
     this.omask.style.display = "block";
-    this.oscore.style.display = "none";    
+    this.oscore.style.display = "none";
   },
 };
 bird.init();

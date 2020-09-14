@@ -14,6 +14,24 @@
     background-image: url("../images/birds.png");
     transition: top .3s linear;
 }
+.pipe{
+    width: 52px;
+    height: 200px;
+    background-color: red;
+    left: 300px;
+    position: absolute;
+    z-index: 1;
+}
+.pipe.pipe-down{
+    background-image: url("../images/pipe2.png");
+    background-position-y: bottom;
+    top: 0;
+}
+
+.pipe.pipe-up{
+    background-image: url("../images/pipe1.png");
+    bottom: 0;
+}
 .start-game{
     top: 305px;
     position: absolute;
