@@ -14,13 +14,15 @@ var bird = {
   startLeft: "80",
   startColor: "white",
   pipeLength: 7,
+  pipeArr: [],
+  score: 0,
+  pipeLastIndex: 6,
+  pipePosition: 300,
   init: function () {
     this.initData();
     this.animate();
     this.skyMove();
-    this.startGame();
-    this.createPipe(300)
-    // this.handleClick();
+    this.handle();
   },
   initData: function () {
     this.ogame = document.getElementById("game");
@@ -28,19 +30,17 @@ var bird = {
     this.osgame = document.getElementsByClassName("start-game")[0];
     this.oscore = document.getElementsByClassName("score-times")[0];
     this.omask = document.getElementsByClassName("mask")[0];
-    // this.oclor = document.getElementsByClassName("")
-    //   this.skyMove()
   },
   animate: function () {
     const self = this;
     let conts = 0;
     this.timer = setInterval(function () {
-    
-      conts++;
+      self.skyMove();
       if (self.startFlag) {
         self.birdDrop();
+        self.MovePipe();
       }
-      if (conts % 10 === 0) {
+      if (++conts % 10 === 0) {
         self.birdFly(conts);
 
         if (!self.startFlag) {
@@ -48,7 +48,6 @@ var bird = {
           self.startBound();
         }
       }
-      self.skyMove();
     }, 30);
   },
   /**
@@ -62,9 +61,8 @@ var bird = {
    * 初始时上下蹦
    */
   birdJump: function () {
-    this.birdTop = this.birdTop === 230 ? 280 : 230;
+    this.birdTop = this.birdTop === 220 ? 260 : 220;
     this.obird.style.top = this.birdTop + "px";
-    // //.log(this.obird.style.top);
   },
   /**
    *
@@ -80,8 +78,10 @@ var bird = {
   birdDrop: function () {
     this.birdTop += ++this.birdStepY;
     this.obird.style.top = this.birdTop + "px";
+    // console.log(this.obird.style.top);
+    this.addScore()
     this.judgeBoundary();
-
+    this.pigeBoundary();
   },
 
   /**
@@ -95,73 +95,129 @@ var bird = {
     this.osgame.classList.add(this.startColor);
   },
   /**
+   * 柱子移动
+   * offsetLeft是不带px的单位
+   */
+
+  MovePipe: function () {
+    for (var i = 0; i < this.pipeLength; i++) {
+      // console.log(this.pipeArr);
+      var oPipeUp = this.pipeArr[i].up;
+      var oPipeDown = this.pipeArr[i].down;
+      var x = oPipeUp.offsetLeft - this.skyStep;
+      if (x < -52) {
+        var lastPipeLeft = this.pipeArr[this.pipeLastIndex].up.offsetLeft;
+        oPipeUp.style.left = lastPipeLeft + 300 + "px";
+        oPipeDown.style.left = lastPipeLeft + 300 + "px";
+        this.pipeLastIndex = ++this.pipeLastIndex % this.pipeLength;
+        continue;
+      }
+      oPipeUp.style.left = x + "px";
+      oPipeDown.style.left = x + "px";
+    }
+  },
+  /**
    * 碰撞检测
    */
   judgeBoundary: function () {
     if (this.birdTop < this.minTop || this.birdTop > this.maxTop) {
-      // this.ogame.style.top = this.maxTop;
-
-      //.log(this.birdTop);
       this.failGame();
     }
   },
   /**
+   * 小鸟和柱子碰撞检测
+   */
+  pigeBoundary: function () {
+    var i = this.score % this.pipeLength;
+    console.log(i);
+    // console.log(this.po);
+    var xPige = this.pipeArr[i].up.offsetLeft;
+    var yPige = this.pipeArr[i].y;
+    var yBird = this.birdTop;
+    // this.i = i++;
+    if (
+      xPige > 95 &&
+      xPige < 13 &&
+      (yBird > yPige[0] || yBird < yPige[1])
+    ) {
+      console.log(xPige,yBird);
+      this.failGame();
+    }
+  },
+  /***
+   * 添加分数
+   */
+  addScore:function () {
+    var index = this.score % this.pipeLength;
+    var pipeX = this.pipeArr[index].up.offsetLeft;
+    if (pipeX<13) {
+      this.oscore.innerText = ++this.score; 
+
+    }    
+  },
+  /**
+   * 处理点击事件
+   */
+  handle: function () {
+    this.handleClick();
+    this.handleStart();
+  },
+  /**
    * 小鸟点击上升
    */
-  // handleClick: function () {
-  //   const self = this;
-  //   this.ogame.onclick = function () {
-  //     console.log(self.birdStepY);
-  //    self.birdStepY += -10;
-  //   };
-  // },
+  handleClick: function () {
+    var self = this;
+    this.ogame.onclick = function (e) {
+      if (!e.target.classList.contains("start-game")) {
+        self.birdStepY = -10;
+      }
+    };
+  },
+  /**
+   *
+   * @param {handleStart} 点击开始游戏
+   */
+  handleStart: function () {
+    this.osgame.onclick = this.startGame.bind(this);
+  },
+
   /**
    * 创建柱子
    */
   createPipe: function (x) {
-    //var upHeihgt = 50 + Math.floor(Math.random() * 175);
-    //var downHeight = 600 - 150 - upHeihgt;
-   // var oupPige = createEle("div", ["pipe", "pipe-up"], {
-   //   height: upHeihgt +"px",
-    //  left: x + "px"
-   // })
-    var odownPige = createEle("div"
-    //, ["pipe", "pipe-down"], {
-     // height: downHeight + "px",
-    //  left: x + "px"
-   //}
-   )
-    //this.ogame.appendChild(oupPige);
+    var upHeihgt = 50 + Math.floor(Math.random() * 175);
+    var downHeight = 600 - 150 - upHeihgt;
+    var oupPige = createEle("div", ["pipe", "pipe-up"], {
+      height: upHeihgt + "px",
+      left: x + "px",
+    });
+    var odownPige = createEle("div", ["pipe", "pipe-down"], {
+      height: downHeight + "px",
+      left: x + "px",
+    });
+    this.ogame.appendChild(oupPige);
     this.ogame.appendChild(odownPige);
+    this.pipeArr.push({
+      up: oupPige,
+      down: odownPige,
+      y: [upHeihgt, upHeihgt + 50],
+    });
   },
 
   startGame: function () {
     const self = this;
-    self.ogame.onclick = function (e) {
-      // console.log(this);
-      self.startFlag = true;
-      self.osgame.style.display = "none";
-      self.oscore.style.display = "block";
-      self.skyStep = 5;
-      self.obird.style.left = self.startLeft + "px";
-      // self.birdStepY = 50;
-      if (!e.target.classList.contains("start-game")) {
-        //  console.log(e.target.classList);
-        self.birdStepY = -10;
-      }
-      //console.log(self.birdStepY);
-      // //.log(self.obird.style.left);
-     // for (let i = 0; i < self.pipeLength; i++) {
-   //     self.createPipe(300 * (i + 1));
- //     }
-    };
+    self.startFlag = true;
+    self.osgame.style.display = "none";
+    self.oscore.style.display = "block";
+    self.skyStep = 5;
+    self.obird.style.left = self.startLeft + "px";
+    for (let i = 0; i < self.pipeLength; i++) {
+      self.createPipe(300 * (i + 1));
+    }
   },
-
   failGame: function () {
-    // this.ogame.style.top = this.maxTop;
     clearInterval(this.timer);
-    // this.ogame.style.top = this.maxTop;
-    ////.log(this.maxTop);
+    // console.log(this.birdTop);
     this.omask.style.display = "block";
     this.oscore.style.display = "none";
   },
