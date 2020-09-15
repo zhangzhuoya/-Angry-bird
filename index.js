@@ -43,6 +43,8 @@ var bird = {
         self.birdDrop();
         self.MovePipe();
       }
+
+      
       if (++conts % 10 === 0) {
         self.birdFly(conts);
 
