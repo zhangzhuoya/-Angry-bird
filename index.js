@@ -10,12 +10,13 @@ var bird = {
   birdTop: 220,
   minTop: 0,
   startFlag: false,
-  maxTop: 570,
+  maxTop: 581,
   startLeft: "80",
   startColor: "white",
   pipeLength: 7,
   pipeArr: [],
   score: 0,
+  scoreArr: [],
   pipeLastIndex: 6,
   pipePosition: 300,
   init: function () {
@@ -30,6 +31,8 @@ var bird = {
     this.osgame = document.getElementsByClassName("start-game")[0];
     this.oscore = document.getElementsByClassName("score-times")[0];
     this.omask = document.getElementsByClassName("mask")[0];
+    this.oRankList = document.getElementsByClassName("rank-score")[0];
+   this.scoreArr = this.getScore()
   },
   animate: function () {
     const self = this;
@@ -79,9 +82,9 @@ var bird = {
     this.birdTop += ++this.birdStepY;
     this.obird.style.top = this.birdTop + "px";
     // console.log(this.obird.style.top);
-    this.addScore()
+    this.addScore();
     this.judgeBoundary();
-    this.pigeBoundary();
+    this.judgePipe();
   },
 
   /**
@@ -127,33 +130,35 @@ var bird = {
   /**
    * 小鸟和柱子碰撞检测
    */
-  pigeBoundary: function () {
-    var i = this.score % this.pipeLength;
-    console.log(i);
-    // console.log(this.po);
-    var xPige = this.pipeArr[i].up.offsetLeft;
-    var yPige = this.pipeArr[i].y;
-    var yBird = this.birdTop;
-    // this.i = i++;
+  judgePipe: function () {
+    // 相遇 pipex = 95 pipeX =13
+    var index = this.score % this.pipeLength;
+    var pipeX = this.pipeArr[index].up.offsetLeft;
+    console.log(index);
+    var pipeY = this.pipeArr[index].y;
+    console.log(pipeX);
+    console.log(pipeY);
+    // console.log(pipeY[1]);
+
+    var birdY = this.birdTop;
+    //  149                 299
     if (
-      xPige > 95 &&
-      xPige < 13 &&
-      (yBird > yPige[0] || yBird < yPige[1])
+      pipeX <= 95 &&
+      pipeX >= 13 &&
+      (birdY <= pipeY[0] || birdY >= pipeY[1])
     ) {
-      console.log(xPige,yBird);
       this.failGame();
     }
   },
   /***
    * 添加分数
    */
-  addScore:function () {
+  addScore: function () {
     var index = this.score % this.pipeLength;
     var pipeX = this.pipeArr[index].up.offsetLeft;
-    if (pipeX<13) {
-      this.oscore.innerText = ++this.score; 
-
-    }    
+    if (pipeX < 13) {
+      this.oscore.innerText = ++this.score;
+    }
   },
   /**
    * 处理点击事件
@@ -185,25 +190,53 @@ var bird = {
    * 创建柱子
    */
   createPipe: function (x) {
-    var upHeihgt = 50 + Math.floor(Math.random() * 175);
-    var downHeight = 600 - 150 - upHeihgt;
-    var oupPige = createEle("div", ["pipe", "pipe-up"], {
-      height: upHeihgt + "px",
+    // var pipeHeight 0 - 1 600-150 = 450 / 2 = 225
+    // (0 , 1) * 175 === 0, 175
+    // 0 - 225 整数
+    // 50 - 275
+    var upHeight = 50 + Math.floor(Math.random() * 175);
+    var downHeight = 600 - 150 - upHeight;
+    var oUpPipe = createEle("div", ["pipe", "pipe-up"], {
+      height: upHeight + "px",
       left: x + "px",
     });
-    var odownPige = createEle("div", ["pipe", "pipe-down"], {
+    var oDownPipe = createEle("div", ["pipe", "pipe-bottom"], {
       height: downHeight + "px",
       left: x + "px",
     });
-    this.ogame.appendChild(oupPige);
-    this.ogame.appendChild(odownPige);
+    this.ogame.appendChild(oUpPipe);
+    // console.log(oUpPipe);
+    this.ogame.appendChild(oDownPipe);
     this.pipeArr.push({
-      up: oupPige,
-      down: odownPige,
-      y: [upHeihgt, upHeihgt + 50],
+      up: oUpPipe,
+      down: oDownPipe,
+      y: [upHeight, upHeight + 150],
     });
   },
-
+  getScore:function () {
+    var scoreArr = getLocal("score");
+    return scoreArr ? scoreArr:[];
+  },
+  setScore: function () {
+    this.scoreArr.push({
+      score: this.score,
+      time: this.getDate(),
+    });
+    this.scoreArr.sort(function (a, b) {
+      return b.score - a.score;
+    });
+    setLocal("score", this.scoreArr);
+  },
+  getDate: function () {
+    var d = new Date();
+    var year = d.getFullYear();
+    var month = formatNum(d.getMonth() + 1);
+    var day = formatNum(d.getDate());
+    var hour = formatNum(d.getHours());
+    var minute = formatNum(d.getMinutes());
+    var second = formatNum(d.getSeconds());
+    return `${year}.${month}.${day} ${hour}:${minute}:${second}`;
+  },
   startGame: function () {
     const self = this;
     self.startFlag = true;
@@ -211,15 +244,48 @@ var bird = {
     self.oscore.style.display = "block";
     self.skyStep = 5;
     self.obird.style.left = self.startLeft + "px";
+    self.obird.style.transition = "none";
     for (let i = 0; i < self.pipeLength; i++) {
       self.createPipe(300 * (i + 1));
     }
   },
+  renderRankList: function () {
+    var template = "";
+    for (var i = 0; i < 8; i++) {
+      var degreeClass = "";
+      switch (i) {
+        case 0:
+          degreeClass = "first";
+
+          break;
+        case 1:
+          degreeClass = "second";
+
+          break;
+        case 3:
+          degreeClass = "third";
+
+          break;
+      }
+      template += `
+    <li class="rank-item">
+    <span class="rank-degree ${degreeClass}">${i + 1}</span>
+    <span class="rank-scores">${this.scoreArr[i].score}</span>
+    <span class="rank-time">${this.scoreArr[i].time}</span>
+    </li>
+    
+    `;
+    }
+    this.oRankList.innerHTML = template;
+  },
   failGame: function () {
+    console.log(this.obird.style.top);
     clearInterval(this.timer);
     // console.log(this.birdTop);
     this.omask.style.display = "block";
     this.oscore.style.display = "none";
+    this.obird.style.top = 570 + "px";
+    this.renderRankList()
   },
 };
 bird.init();
