@@ -24,15 +24,21 @@ var bird = {
     this.animate();
     this.skyMove();
     this.handle();
+    if (sessionStorage.getItem("play")) {
+      this.start()
+      
+    }
   },
   initData: function () {
     this.ogame = document.getElementById("game");
     this.obird = document.getElementsByClassName("bird")[0];
     this.osgame = document.getElementsByClassName("start-game")[0];
     this.oscore = document.getElementsByClassName("score-times")[0];
+    this.ofailscore = document.getElementsByClassName("score")[0];
     this.omask = document.getElementsByClassName("mask")[0];
     this.oRankList = document.getElementsByClassName("rank-score")[0];
-   this.scoreArr = this.getScore()
+    this.scoreArr = this.getScore();
+    this.orestart = document.getElementsByClassName("restart")[0];
   },
   animate: function () {
     const self = this;
@@ -42,12 +48,9 @@ var bird = {
       if (self.startFlag) {
         self.birdDrop();
         self.MovePipe();
-      }
-
-      
+      } 
       if (++conts % 10 === 0) {
         self.birdFly(conts);
-
         if (!self.startFlag) {
           self.birdJump();
           self.startBound();
@@ -103,7 +106,7 @@ var bird = {
    * 柱子移动
    * offsetLeft是不带px的单位
    */
-
+  
   MovePipe: function () {
     for (var i = 0; i < this.pipeLength; i++) {
       // console.log(this.pipeArr);
@@ -168,6 +171,7 @@ var bird = {
   handle: function () {
     this.handleClick();
     this.handleStart();
+    this.handleRestart()
   },
   /**
    * 小鸟点击上升
@@ -187,6 +191,14 @@ var bird = {
   handleStart: function () {
     this.osgame.onclick = this.startGame.bind(this);
   },
+  handleRestart:function () {
+    console.log(1);
+    this.orestart.onclick = function () {
+      sessionStorage.setItem("play",true);
+      window.location.reload();
+    }
+  },
+  
 
   /**
    * 创建柱子
@@ -227,6 +239,7 @@ var bird = {
     this.scoreArr.sort(function (a, b) {
       return b.score - a.score;
     });
+    console.log(this.scoreArr);
     setLocal("score", this.scoreArr);
   },
   getDate: function () {
@@ -258,13 +271,12 @@ var bird = {
       switch (i) {
         case 0:
           degreeClass = "first";
-
           break;
         case 1:
           degreeClass = "second";
 
           break;
-        case 3:
+        case 2:
           degreeClass = "third";
 
           break;
@@ -281,8 +293,9 @@ var bird = {
     this.oRankList.innerHTML = template;
   },
   failGame: function () {
-    console.log(this.obird.style.top);
+    this.setScore();
     clearInterval(this.timer);
+    this.ofailscore.innerText = this.score
     // console.log(this.birdTop);
     this.omask.style.display = "block";
     this.oscore.style.display = "none";
